@@ -52,32 +52,36 @@
 #define BUTTON_NUMS 7
 
 static const char *MESSAGES[2 * BUTTON_NUMS] = {
-    "USER PRESSED\r\n",
-    "USER RELEASED\r\n",
-    "LEFT PRESSED\r\n",
-    "LEFT RELEASED\r\n",
-    "RIGHT PRESSED\r\n",
-    "RIGHT RELEASED\r\n",
-    "UP PRESSED\r\n",
-    "UP RELEASED\r\n",
-    "DOWN PRESSED\r\n",
-    "DOWN RELEASED\r\n",
-    "FIRE PRESSED\r\n",
-    "FIRE RELEASED\r\n",
-    "MODE PRESET\r\n",
-    "MODE RELEASED\r\n"
+        "USER PRESSED\r\n",
+        "USER RELEASED\r\n",
+        "LEFT PRESSED\r\n",
+        "LEFT RELEASED\r\n",
+        "RIGHT PRESSED\r\n",
+        "RIGHT RELEASED\r\n",
+        "UP PRESSED\r\n",
+        "UP RELEASED\r\n",
+        "DOWN PRESSED\r\n",
+        "DOWN RELEASED\r\n",
+        "FIRE PRESSED\r\n",
+        "FIRE RELEASED\r\n",
+        "MODE PRESET\r\n",
+        "MODE RELEASED\r\n"
 };
 
 static const uint32_t MESS_LENGTHS[2 * BUTTON_NUMS] = {
-    14, 15, 14, 15, 15, 16, 12, 13, 14, 15, 14, 15, 13, 15
+        14, 15, 14, 15, 15, 16, 12, 13, 14, 15, 14, 15, 13, 15
 };
 
-static __IO uint32_t red_led_state;
-static __IO uint32_t green_led_state;
-static __IO uint32_t blue_led_state;
-static __IO uint32_t green2_led_state;
+static __IO uint32_t
+red_led_state;
+static __IO uint32_t
+green_led_state;
+static __IO uint32_t
+blue_led_state;
+static __IO uint32_t
+green2_led_state;
 
-static uint32_t button_states[BUTTON_NUMS] = { 0 };
+static uint32_t button_states[BUTTON_NUMS] = {0};
 static uint32_t button_to_reg_map[BUTTON_NUMS] = {13, 3, 4, 5, 6, 10, 0};
 
 static uint32_t send_buffer_pos = 0;
@@ -100,8 +104,7 @@ static
 uint32_t get_message_index(uint32_t button_num) {
     if (button_num < 6) {
         return 2 * button_num + button_states[button_num];
-    }
-    else {
+    } else {
         return 2 * button_num + 1 - button_states[button_num];
     }
 }
@@ -143,7 +146,7 @@ uint32_t parse_query(char *recv_buffer, uint32_t buffer_used) {
             red_led_state = red_led_state ^ (1 << RED_LED_PIN | 1 << (RED_LED_PIN + 16));
             RED_LED_GPIO->BSRR = blue_led_state;
         }
-    } else if(LED_char == 'G') {
+    } else if (LED_char == 'G') {
         if (opt_char == '0') {
             GreenLEDoff();
         } else if (opt_char == '1') {
@@ -212,7 +215,7 @@ int main(void) {
     uint32_t parse_ret_val;
 
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN |
-	                RCC_AHB1ENR_GPIOBEN |
+                    RCC_AHB1ENR_GPIOBEN |
                     RCC_AHB1ENR_GPIOCEN;
 
     RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
@@ -227,7 +230,7 @@ int main(void) {
     USART2->CR3 = USART_FlowControl_None;
 
     USART2->BRR = (PCLK1_HZ + (BAUD_RATE / 2U)) /
-                   BAUD_RATE;
+                  BAUD_RATE;
 
     USART2->CR1 |= USART_Enable;
 
@@ -238,34 +241,34 @@ int main(void) {
     BlueLEDoff();
     Green2LEDoff();
 
-    red_led_state = 1 <<  RED_LED_PIN;
+    red_led_state = 1 << RED_LED_PIN;
     green_led_state = 1 << GREEN_LED_PIN;
     blue_led_state = 1 << BLUE_LED_PIN;
     green2_led_state = 1 << (GREEN2_LED_PIN + 16);
 
-	GPIOoutConfigure(RED_LED_GPIO,
-					 RED_LED_PIN,
-					 GPIO_OType_PP,
-					 GPIO_Low_Speed,
-					 GPIO_PuPd_NOPULL);
+    GPIOoutConfigure(RED_LED_GPIO,
+                     RED_LED_PIN,
+                     GPIO_OType_PP,
+                     GPIO_Low_Speed,
+                     GPIO_PuPd_NOPULL);
 
-	GPIOoutConfigure(GREEN_LED_GPIO,
-		             GREEN_LED_PIN,
-		             GPIO_OType_PP,
-		             GPIO_Low_Speed,
-		             GPIO_PuPd_NOPULL);
+    GPIOoutConfigure(GREEN_LED_GPIO,
+                     GREEN_LED_PIN,
+                     GPIO_OType_PP,
+                     GPIO_Low_Speed,
+                     GPIO_PuPd_NOPULL);
 
-	GPIOoutConfigure(BLUE_LED_GPIO,
-		             BLUE_LED_PIN,
-		             GPIO_OType_PP,
-		             GPIO_Low_Speed,
-		             GPIO_PuPd_NOPULL);
+    GPIOoutConfigure(BLUE_LED_GPIO,
+                     BLUE_LED_PIN,
+                     GPIO_OType_PP,
+                     GPIO_Low_Speed,
+                     GPIO_PuPd_NOPULL);
 
-	GPIOoutConfigure(GREEN2_LED_GPIO,
-					 GREEN2_LED_PIN,
-					 GPIO_OType_PP,
-					 GPIO_Low_Speed,
-					 GPIO_PuPd_NOPULL);
+    GPIOoutConfigure(GREEN2_LED_GPIO,
+                     GREEN2_LED_PIN,
+                     GPIO_OType_PP,
+                     GPIO_Low_Speed,
+                     GPIO_PuPd_NOPULL);
 
     GPIOafConfigure(GPIOA,
                     2,
@@ -299,7 +302,7 @@ int main(void) {
         if (parse_ret_val != 0) {
             recv_buffer_used = 0;
         }
-        
+
         check_buttons_states();
 
         if (send_buffer_used > 0 && (USART2->SR & USART_SR_TXE)) {
